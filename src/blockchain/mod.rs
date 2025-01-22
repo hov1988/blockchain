@@ -1,6 +1,33 @@
+mod Transaction;
+
+use std::io::Bytes;
 use std::time::SystemTime;
 use sha2::{Digest, Sha256};
 
+pub trait Transition<T> {
+    fn serialisation(&self) -> Vec<u8>;
+    fn deserialization(bytes: Vec<u8>) -> T;
+}
+pub enum BlockSearch {
+    SearchByIndex(usize),
+    SearchByPreviousHash(Vec<u8>),
+    SearchByBlockHash(Vec<u8>),
+    SearchByNonce(u32),
+    SearchByTimeStamp(u128),
+    SearchByTransactions(Vec<u8>),
+}
+
+pub enum BlockSearchResult<'a> {
+    Success(&'a Block),
+    FailOfEmptyBlocks,
+    FailOfEmptyBlock,
+    FailOfIndex(usize),
+    FailOfPreviousHash(Vec<u8>),
+    FailOfBlockHash(Vec<u8>),
+    FailOfNonce(u32),
+    FailOfTimestamp(u128),
+    FailOfTransaction(Vec<u8>),
+}
 #[derive(Debug)]
 pub struct Block {
     nonce: u32,
@@ -81,5 +108,79 @@ impl BlockChain {
         }
 
         &self.chain[0]
+    }
+
+    pub fn search_block(&self, search: BlockSearch) -> BlockSearchResult {
+        for (idx, block) in self.chain.iter().enumerate() {
+            for (idx, block) in self.chain.iter().enumerate() {
+                match search {
+                    BlockSearch::SearchByIndex(index) => {
+                        if index == idx {
+                            return BlockSearchResult::Success(block);
+                        }
+
+                        if index >= self.chain.len() {
+                            return BlockSearchResult::FailOfIndex(index);
+                        }
+                    }
+                    /*
+                    matching will move the ownership that's why we need reference
+                    */
+                    BlockSearch::SearchByPreviousHash(ref hash) => {
+                        if block.previous_hash == *hash {
+                            return BlockSearchResult::Success(block);
+                        }
+
+                        if idx >= self.chain.len() {
+                            return BlockSearchResult::FailOfPreviousHash(hash.to_vec());
+                        }
+                    }
+
+                    BlockSearch::SearchByBlockHash(ref hash) => {
+                        if block.hash() == *hash {
+                            return BlockSearchResult::Success(block);
+                        }
+
+                        if idx >= self.chain.len() {
+                            return BlockSearchResult::FailOfBlockHash(hash.to_vec());
+                        }
+                    }
+
+                    BlockSearch::SearchByNonce(nonce) => {
+                        if block.nonce == nonce {
+                            return BlockSearchResult::Success(block);
+                        }
+
+                        if idx >= self.chain.len() {
+                            return BlockSearchResult::FailOfNonce(nonce);
+                        }
+                    }
+
+                    BlockSearch::SearchByTimeStamp(time_stamp) => {
+                        if block.time_stamp == time_stamp {
+                            return BlockSearchResult::Success(block);
+                        }
+
+                        if idx >= self.chain.len() {
+                            return BlockSearchResult::FailOfTimestamp(time_stamp);
+                        }
+                    }
+
+                    BlockSearch::SearchByTransactions(ref transaction) => {
+                        for tx in block.transactions.iter() {
+                            if tx == transaction {
+                                return BlockSearchResult::Success(block);
+                            }
+                        }
+
+                        if idx >= self.chain.len() {
+                            return BlockSearchResult::FailOfTransaction(transaction.to_vec());
+                        }
+                    }
+                }
+            }
+        }
+
+        BlockSearchResult::FailOfEmptyBlocks
     }
 }
