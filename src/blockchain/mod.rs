@@ -1,10 +1,11 @@
-mod Transaction;
+pub(crate) mod transaction;
 
-use std::io::Bytes;
 use std::time::SystemTime;
 use sha2::{Digest, Sha256};
+use crate::blockchain::transaction::Transaction;
+use std::ops::AddAssign;
 
-pub trait Transition<T> {
+pub trait Serialization<T> {
     fn serialisation(&self) -> Vec<u8>;
     fn deserialization(bytes: Vec<u8>) -> T;
 }
@@ -12,7 +13,7 @@ pub enum BlockSearch {
     SearchByIndex(usize),
     SearchByPreviousHash(Vec<u8>),
     SearchByBlockHash(Vec<u8>),
-    SearchByNonce(u32),
+    SearchByNonce(i32),
     SearchByTimeStamp(u128),
     SearchByTransactions(Vec<u8>),
 }
@@ -24,21 +25,29 @@ pub enum BlockSearchResult<'a> {
     FailOfIndex(usize),
     FailOfPreviousHash(Vec<u8>),
     FailOfBlockHash(Vec<u8>),
-    FailOfNonce(u32),
+    FailOfNonce(i32),
     FailOfTimestamp(u128),
     FailOfTransaction(Vec<u8>),
 }
 #[derive(Debug)]
 pub struct Block {
-    nonce: u32,
+    nonce: i32,
     previous_hash: Vec<u8>,
     time_stamp: u128,
     transactions: Vec<Vec<u8>>,
 }
 
+impl AddAssign<i32> for Block {
+    fn add_assign(&mut self, rhs: i32) {
+        self.nonce += rhs
+    }
+}
+
 impl Block {
-    fn new (nonce: u32, previous_hash: Vec<u8>) -> Self {
-        let time_new = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();
+    fn new (nonce: i32, previous_hash: Vec<u8>) -> Self {
+        let time_new = SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .expect("System clock error");
 
         Block {
             nonce,
@@ -89,8 +98,13 @@ impl BlockChain {
         bc
     }
 
-    pub fn create_block(&mut self, nonce: u32, previous_hash:Vec<u8>) {
-        let b = Block::new(nonce, previous_hash);
+    pub fn create_block(&mut self, nonce: i32, previous_hash:Vec<u8>) {
+        let mut b = Block::new(nonce, previous_hash);
+        for tx in self.transaction_pool.iter() {
+            b.transactions.push(tx.clone())
+        }
+        self.transaction_pool.clear();
+
         self.chain.push(b);
     }
 
@@ -100,6 +114,16 @@ impl BlockChain {
             block.print();
         }
         println!("{}", "*".repeat(25));
+    }
+
+    pub fn add_transition(&mut self, tx: &impl Serialization<Transaction>) {
+        for tx_in_pool in self.transaction_pool.iter() {
+            if *tx_in_pool == tx.serialisation() {
+                return;
+            }
+        }
+
+        self.transaction_pool.push(tx.serialisation())
     }
 
     pub fn last_block(&self) -> &Block {

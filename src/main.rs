@@ -1,6 +1,6 @@
 pub mod blockchain;
-use blockchain::BlockChain;
-use crate::blockchain::BlockSearchResult;
+use blockchain::{transaction::Transaction, Block, BlockChain, BlockSearch, BlockSearchResult};
+use crate::blockchain::Serialization;
 
 fn get_block_search_result(result: BlockSearchResult) {
     match result {
@@ -46,7 +46,16 @@ fn main() {
 
     block_chain.create_block(1, prev_hash);
 
-    let prev_hash = block_chain.last_block().hash();
-    block_chain.create_block(2, prev_hash);
-    block_chain.print();
+    let transaction = Transaction::new(
+        "sender".as_bytes().to_vec(),
+        "recipient".as_bytes().to_vec(),
+        100
+    );
+
+    println!("before {}", transaction);
+    let tx_bx = transaction.serialisation();
+    println!("bin of tx {:?}", tx_bx);
+    let tx = Transaction::deserialization(tx_bx);
+    println!("first tx {}", tx)
+
 }
