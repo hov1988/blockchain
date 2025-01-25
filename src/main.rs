@@ -28,34 +28,40 @@ fn get_block_search_result(result: BlockSearchResult) {
             println!("not block has nonce with value: {}", nonce);
         }
 
-        BlockSearchResult::FailOfTimestamp(time_stamp) => {
+        BlockSearchResult::FailOfTimeStamp(time_stamp) => {
             println!("not block has given time stamp: {}", time_stamp);
         }
 
         BlockSearchResult::FailOfTransaction(tx) => {
             println!("not block contains given trasaction: {:?}", tx);
         }
-        _ => {}
     }
 }
 
 fn main() {
-    let mut block_chain = BlockChain::new();
+    let my_blockchain_addr = "my blockchain address";
+    let mut block_chain = BlockChain::new(my_blockchain_addr.into());
     block_chain.print();
-    let prev_hash = block_chain.last_block().hash();
 
-    block_chain.create_block(1, prev_hash);
+    block_chain.add_transaction(&Transaction::new("A".into(), "B".into(), 1));
+    block_chain.mining();
+    block_chain.print();
 
-    let transaction = Transaction::new(
-        "sender".as_bytes().to_vec(),
-        "recipient".as_bytes().to_vec(),
-        100
+    block_chain.add_transaction(&Transaction::new("C".into(), "D".into(), 2));
+    block_chain.add_transaction(&Transaction::new("X".into(), "Y".into(), 3));
+    block_chain.mining();
+    block_chain.print();
+
+    println!(
+        "value for miner: {}",
+        block_chain.calculate_total_amount(my_blockchain_addr.to_string())
     );
-
-    println!("before {}", transaction);
-    let tx_bx = transaction.serialisation();
-    println!("bin of tx {:?}", tx_bx);
-    let tx = Transaction::deserialization(tx_bx);
-    println!("first tx {}", tx)
-
+    println!(
+        "value for C: {}",
+        block_chain.calculate_total_amount("C".to_string())
+    );
+    println!(
+        "value for D: {}",
+        block_chain.calculate_total_amount("D".to_string())
+    );
 }

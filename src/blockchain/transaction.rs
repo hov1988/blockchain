@@ -20,7 +20,7 @@ impl Transaction {
 }
 
 impl Serialization<Transaction> for Transaction {
-    fn serialisation(&self) -> Vec<u8> {
+    fn serialization(&self) -> Vec<u8> {
         let mut bin = Vec::<u8>::new();
         let len_sender = self.sender_address.len();
         bin.extend(len_sender.to_be_bytes().to_vec());
@@ -28,24 +28,27 @@ impl Serialization<Transaction> for Transaction {
         let len_recipient = self.recipient_address.len();
         bin.extend(len_recipient.to_be_bytes().to_vec());
         bin.extend(&self.recipient_address);
-        bin.extend(self.value.to_be_bytes());
+        let len_value = self.value.to_be_bytes().len();
+        bin.extend(len_value.to_be_bytes().to_vec());
+        bin.extend(self.value.to_be_bytes().to_vec());
         bin
     }
 
     fn deserialization(bytes: Vec<u8>) -> Transaction {
         let mut pos = 0;
         let len_sender = usize::from_be_bytes(bytes[pos..pos + 8].try_into().unwrap());
+        let mut sender_address = Vec::<u8>::new();
         pos += 8;
-        let sender_address = bytes[pos..pos + len_sender].to_vec();
+        sender_address.extend_from_slice(&bytes[pos..pos + len_sender]);
         pos += len_sender;
-
         let len_recipient = usize::from_be_bytes(bytes[pos..pos + 8].try_into().unwrap());
         pos += 8;
-        let recipient_address = bytes[pos..pos + len_recipient].to_vec();
+        let mut recipient_address = Vec::<u8>::new();
+        recipient_address.extend_from_slice(&bytes[pos..pos + len_recipient]);
         pos += len_recipient;
-
-        let value = u64::from_be_bytes(bytes[pos..pos + 8].try_into().unwrap());
-
+        pos += 8;
+        let value: u64 = u64::from_be_bytes(bytes[pos..pos + 8].try_into().unwrap());
+        pos += 8;
         Transaction {
             sender_address,
             recipient_address,
@@ -56,14 +59,12 @@ impl Serialization<Transaction> for Transaction {
 
 impl fmt::Display for Transaction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let sender = str::from_utf8(&self.sender_address).unwrap_or("<Invalid UTF-8>");
-        let recipient = str::from_utf8(&self.recipient_address).unwrap_or("<Invalid UTF-8>");
         write!(
             f,
-            "{}\nSender address: {}\nRecipient address: {}\nValue: {}\n{}",
+            "{}\nsender address: {:?}\nreceipent address: {:?}\nvalue:{}\n {}",
             "-".repeat(40),
-            sender,
-            recipient,
+            str::from_utf8(&self.sender_address),
+            str::from_utf8(&self.recipient_address),
             self.value,
             "-".repeat(40)
         )
