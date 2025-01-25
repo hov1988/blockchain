@@ -1,22 +1,22 @@
-use sha2::{Digest, Sha256};
-use std::slice::RSplit;
-use std::time::SystemTime;
+use sha2::Digest;
 use transaction::*;
 pub mod transaction;
-use crate::wallet::{Transaction as WalletTransaction, Wallet};
+
+use crate::wallet::{WalletTransaction as WalletTransaction, Wallet};
 use std::cmp::PartialEq;
 use std::ops::AddAssign;
 use std::ops::Index;
 use std::time::Instant;
+pub mod block;
 
+use block::Block;
+use transaction::*;
 pub trait Serialization<T> {
     fn serialization(&self) -> Vec<u8>;
-    //static
     fn deserialization(bytes: Vec<u8>) -> T;
 }
 
 pub enum BlockSearch {
-    //tag value
     SearchByIndex(usize),
     SearchByPreviousHash(Vec<u8>),
     SearchByBlockHash(Vec<u8>),
@@ -26,8 +26,6 @@ pub enum BlockSearch {
 }
 
 pub enum BlockSearchResult<'a> {
-    //indicate the block reference attaching to the tag value
-    //has the same life time as the block on the chain
     Success(&'a Block),
     FailOfEmptyBlocks,
     FailOfIndex(usize),
@@ -39,119 +37,22 @@ pub enum BlockSearchResult<'a> {
 }
 
 #[derive(Debug)]
-pub struct Block {
-    nonce: i32,
-    previous_hash: Vec<u8>,
-    time_stamp: u128,
-    transactions: Vec<Vec<u8>>,
-}
-
-impl AddAssign<i32> for Block {
-    fn add_assign(&mut self, rhs: i32) {
-        self.nonce += rhs;
-    }
-}
-
-/*
-trait PartialEq<Rhs = Self> where Rhs : ?Sized {
-    fn eq(&self, other :Rhs) -> bool;
-    fn nq(&self, other :Rhs) -> bool {
-        !self->eq(self, other)
-    }
-}
-*/
-
-impl PartialEq for Block {
-    fn eq(&self, other: &Self) -> bool {
-        let self_hash = self.hash();
-        let other_hash = other.hash();
-        self_hash == other_hash
-    }
-}
-/*
-CamelCase for name of struct, snake_case for name of fields
-*/
-
-impl Block {
-    //methods for the struct, class methods,
-    //Two kinds of methods, one kind static method which not reading or
-    //writing into fields of the block
-    //Self is alias name for object, if we change the name of the struct
-    //then we don't need to change the name inside here
-    pub fn new(nonce: i32, previous_hash: Vec<u8>) -> Self {
-        //the method will take control of the input of previous_hash
-        let time_now = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap();
-        Block {
-            nonce: nonce,
-            previous_hash: previous_hash,
-            time_stamp: time_now.as_nanos(),
-            transactions: Vec::<Vec<u8>>::new(),
-        } //don't add semicolon because we want to return this object
-    }
-
-    //struct method which is need to read or write to fields of the struct
-    //self which reference to the struct instance
-    pub fn print(&self) {
-        //format value as hex
-        println!("timestamp: {:x}", self.time_stamp);
-        //format integer
-        println!("nonce: {}", self.nonce);
-        //print vecotr, ask the compiler to do it
-        println!("previous_hash: {:?}", self.previous_hash);
-        for (idx, tx) in self.transactions.iter().enumerate() {
-            let transaction = Transaction::deserialization(tx.to_vec());
-            println!("the {}'th transaction is: {}", idx, transaction);
-        }
-    }
-
-    pub fn hash(&self) -> Vec<u8> {
-        let mut bin = Vec::<u8>::new();
-        bin.extend(self.nonce.to_be_bytes());
-        bin.extend(self.previous_hash.clone());
-        bin.extend(self.time_stamp.to_be_bytes());
-        for tx in self.transactions.iter() {
-            bin.extend(tx.clone());
-        }
-
-        let mut hasher = Sha256::new();
-        hasher.update(bin);
-        hasher.finalize().to_vec()
-    }
-}
-
-#[derive(Debug)]
 pub struct BlockChain {
     transaction_pool: Vec<Vec<u8>>,
     chain: Vec<Block>,
     blockchain_address: String,
 }
-/*
-trait Index<idx> {
-    type Output: ?Sized
-    fn index(&self, index: idx) -> &Self.Output;
-}
-*/
 
 impl Index<usize> for BlockChain {
-    type Output = Block; //u32
+    type Output = Block;
     fn index(&self, index: usize) -> &Self::Output {
-        let res = self.chain.get(index);
-        match res {
-            Some(block) => {
-                return block;
-            }
-            None => {
-                panic!("index out of range for the chain")
-            }
-        }
+        self.chain.get(index).expect("index out of range for the chain")
     }
 }
 
 impl BlockChain {
     const DIFFICULTY: usize = 3;
-    const MINING_SENDER: &str = "THE BLOCKCHAIN";
+    const MINING_SENDER: &'static str = "THE BLOCKCHAIN";
     const MINING_REWARD: u64 = 1;
 
     pub fn new(address: String) -> Self {
@@ -165,7 +66,7 @@ impl BlockChain {
         bc.chain.push(b);
         bc.mining();
 
-        bc //no semicolon
+        bc
     }
 
     pub fn create_block(&mut self, nonce: i32, previous_hash: Vec<u8>) {
@@ -185,9 +86,6 @@ impl BlockChain {
     }
 
     pub fn print(&self) {
-        /*
-        using ieterator to loop over the vector, it is complicate and powerful
-        */
         for (i, block) in self.chain.iter().enumerate() {
             println!("{} Chain {} {}", "=".repeat(25), i, "=".repeat(25));
             block.print();
@@ -216,20 +114,11 @@ impl BlockChain {
                     }
                 }
                 BlockSearch::SearchByPreviousHash(ref hash) => {
-                    /*
-                    enum matching can cause data ownership transfer, the hash value
-                    attach to search is transfer to the local variable of hash here,
-                    when we go to the end of the code block here, the hash will be
-                    dropped, then in the next round, we will have not value to get.
-                    */
                     if block.previous_hash == *hash {
                         return BlockSearchResult::Success(block);
                     }
 
                     if idx >= self.chain.len() {
-                        //the data type for FailOfPreviousHash is
-                        //Vec<u8>, but the hash is &Vec<u8>
-                        //to_vec will cause the &Vec<u8> to clone its Vec<u8> data
                         return BlockSearchResult::FailOfPreviousHash(hash.to_vec());
                     }
                 }
@@ -278,7 +167,7 @@ impl BlockChain {
             }
         }
 
-        return BlockSearchResult::FailOfEmptyBlocks;
+        BlockSearchResult::FailOfEmptyBlocks
     }
 
     pub fn add_transaction(&mut self, tx: &WalletTransaction) -> bool {
@@ -328,12 +217,8 @@ impl BlockChain {
     }
 
     pub fn mining(&mut self) -> bool {
-        /*
-        when a block is mined, a transaction need to created to record the value that
-        the blockchain send to the miner
-        */
         let tx = WalletTransaction {
-            sender: BlockChain::MINING_SENDER.clone().into(),
+            sender: BlockChain::MINING_SENDER.into(),
             recipient: self.blockchain_address.clone().into(),
             amount: BlockChain::MINING_REWARD,
             public_key: "".to_string(),
@@ -354,13 +239,6 @@ impl BlockChain {
                 let tx = Transaction::deserialization(t.clone());
                 let value = tx.value;
 
-                /*
-                into is a trait used for converting one type into another,
-                String implement many type of into trait, such as into<str>, into<i32>,
-                into<u64> ..., into<Vec<u8>>,
-                we need to tell the compiler which trait we should use that is
-                into<Vec<u8>>
-                */
                 if <String as Into<Vec<u8>>>::into(address.clone()) == tx.recipient_address {
                     total_amount += value as i64;
                 }
