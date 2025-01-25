@@ -1,67 +1,29 @@
+pub mod wallet;
+use wallet::Wallet;
 pub mod blockchain;
-use blockchain::{transaction::Transaction, Block, BlockChain, BlockSearch, BlockSearchResult};
-use crate::blockchain::Serialization;
-
-fn get_block_search_result(result: BlockSearchResult) {
-    match result {
-        BlockSearchResult::Success(block) => {
-            println!("find given block: {:?}", block);
-        }
-
-        BlockSearchResult::FailOfEmptyBlocks => {
-            println!("no block in the chain");
-        }
-
-        BlockSearchResult::FailOfIndex(idx) => {
-            println!("fail to find block with index: {}", idx);
-        }
-
-        BlockSearchResult::FailOfPreviousHash(hash) => {
-            println!("not block hash given previous hash: {:?}", hash);
-        }
-
-        BlockSearchResult::FailOfBlockHash(hash) => {
-            println!("not block has hash as :{:?}", hash);
-        }
-
-        BlockSearchResult::FailOfNonce(nonce) => {
-            println!("not block has nonce with value: {}", nonce);
-        }
-
-        BlockSearchResult::FailOfTimeStamp(time_stamp) => {
-            println!("not block has given time stamp: {}", time_stamp);
-        }
-
-        BlockSearchResult::FailOfTransaction(tx) => {
-            println!("not block contains given trasaction: {:?}", tx);
-        }
-    }
-}
+use blockchain::BlockChain;
 
 fn main() {
-    let my_blockchain_addr = "my blockchain address";
-    let mut block_chain = BlockChain::new(my_blockchain_addr.into());
-    block_chain.print();
+    let wallet = Wallet::new();
+    println!("private key: {}", wallet.private_key_str());
+    println!("public key: {}", wallet.public_key_str());
+    println!("address: {}", wallet.get_address());
 
-    block_chain.add_transaction(&Transaction::new("A".into(), "B".into(), 1));
-    block_chain.mining();
-    block_chain.print();
+    let transaction = wallet.sign_transaction(&"0x1234567890".to_string(), 100);
+    println!("transaction : {:?}", transaction);
+    println!("verify: {}", Wallet::verify_transaction(&transaction));
 
-    block_chain.add_transaction(&Transaction::new("C".into(), "D".into(), 2));
-    block_chain.add_transaction(&Transaction::new("X".into(), "Y".into(), 3));
-    block_chain.mining();
-    block_chain.print();
+    let wallet_miner = Wallet::new();
+    let wallet_a = Wallet::new();
+    let wallet_b = Wallet::new();
 
-    println!(
-        "value for miner: {}",
-        block_chain.calculate_total_amount(my_blockchain_addr.to_string())
-    );
-    println!(
-        "value for C: {}",
-        block_chain.calculate_total_amount("C".to_string())
-    );
-    println!(
-        "value for D: {}",
-        block_chain.calculate_total_amount("D".to_string())
-    );
+    let tx_a_b = wallet_a.sign_transaction(&wallet_b.get_address(), 100);
+    let mut blockchain = BlockChain::new(wallet_miner.get_address());
+    let is_add = blockchain.add_transaction(&tx_a_b);
+    println!("Added: {:?}", is_add);
+    blockchain.mining();
+    blockchain.print();
+    println!("A: {:?}\n", blockchain.calculate_total_amount(wallet_a.get_address()));
+    println!("B: {:?}\n", blockchain.calculate_total_amount(wallet_b.get_address()));
+    println!("Miner: {:?}\n", blockchain.calculate_total_amount(wallet_miner.get_address()));
 }
