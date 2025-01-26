@@ -1,33 +1,34 @@
-pub mod wallet;
-use wallet::Wallet;
-pub mod blockchain;
-mod config;
+use actix_web::{web, App, HttpServer};
+use utoipa::{OpenApi};
+use utoipa_swagger_ui::SwaggerUi;
 
-use blockchain::BlockChain;
-use crate::config::Config;
+mod apis;
 
-fn main() {
-    let wallet = Wallet::new();
-    println!("private key: {}", wallet.private_key_str());
-    println!("public key: {}", wallet.public_key_str());
-    println!("address: {}", wallet.get_address());
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    #[derive(OpenApi)]
+    #[openapi(
+        paths(
+            apis::wallet_api::get_wallet,
+            apis::blockchain_api::add_transaction
+        ),
+        components(
+            schemas(apis::models::Wallet, apis::models::Transaction)
+        ),
+        info(
+            title = "Blockchain API",
+            version = "1.0.0"
+        )
+    )]
+    struct ApiDoc;
 
-    let transaction = wallet.sign_transaction(&"0x1234567890".to_string(), 100);
-    println!("transaction : {:?}", transaction);
-    println!("verify: {}", Wallet::verify_transaction(&transaction));
-    let config = Config::default();
-
-    let wallet_miner = Wallet::new();
-    let wallet_a = Wallet::new();
-    let wallet_b = Wallet::new();
-
-    let tx_a_b = wallet_a.sign_transaction(&wallet_b.get_address(), 100);
-    let mut blockchain = BlockChain::new(config, wallet_miner.get_address());
-    let is_add = blockchain.add_transaction(&tx_a_b);
-    println!("Added: {:?}", is_add);
-    blockchain.mining();
-    blockchain.print();
-    println!("A: {:?}\n", blockchain.calculate_total_amount(wallet_a.get_address()));
-    println!("B: {:?}\n", blockchain.calculate_total_amount(wallet_b.get_address()));
-    println!("Miner: {:?}\n", blockchain.calculate_total_amount(wallet_miner.get_address()));
+    HttpServer::new(move || {
+        App::new()
+            .service(SwaggerUi::new("/swagger-ui/{_:.*}").url("/api-doc/openapi.json", ApiDoc::openapi()))
+            .configure(apis::configure_wallet_api)
+            .configure(apis::configure_blockchain_api)
+    })
+        .bind(("127.0.0.1", 8080))?
+        .run()
+        .await
 }

@@ -1,0 +1,54 @@
+openapi: 3.0.0
+info:
+  title: Blockchain API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+paths:
+  /wallet:
+    get:
+      summary: Get Wallet Information
+      operationId: getWallet
+      responses:
+        "200":
+          description: Wallet information retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Wallet"
+  /blockchain:
+    post:
+      summary: Add a transaction to the blockchain
+      operationId: addTransaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Transaction"
+      responses:
+        "200":
+          description: Transaction added successfully
+components:
+  schemas:
+    Wallet:
+      type: object
+      properties:
+        address:
+          type: string
+        publicKey:
+          type: string
+        privateKey:
+          type: string
+    Transaction:
+      type: object
+      properties:
+        sender:
+          type: string
+        recipient:
+          type: string
+        amount:
+          type: number
+          format: float
+        signature:
+          type: string

@@ -1,4 +1,3 @@
 /target/
-/target/debug/
-/target/.rustc_info.json
-/target/CACHEDIR.TAG
+**/*.rs.bk
+Cargo.lock

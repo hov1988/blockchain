@@ -10,6 +10,11 @@ p256 = { version = "0.13", features = ["ecdsa","arithmetic"] }
 rand_core = "0.6"
 ripemd160 = "0.9"
 bs58 = "0.4"
-serde = {version = "1.0.207", features=["derive"] }
+serde = { version = "1.0.207", features = ["derive"] }
 serde_json = "1.0.124"
 dotenv = "0.15"
+actix-files = "0.6"
+actix-web = "4.9.0"
+tokio = { version = "1", features = ["full"] } # Async runtime for Actix
+utoipa = { version = "5.3.1", features = ["actix_extras"] }
+utoipa-swagger-ui = { version = "9.0.0", features = ["actix-web"] }
