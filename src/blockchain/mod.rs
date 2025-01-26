@@ -1,5 +1,6 @@
 use sha2::Digest;
 use transaction::*;
+use crate::config::Config;
 pub mod transaction;
 
 use crate::wallet::{WalletTransaction as WalletTransaction, Wallet};
@@ -38,6 +39,7 @@ pub enum BlockSearchResult<'a> {
 
 #[derive(Debug)]
 pub struct BlockChain {
+    pub config: Config,
     transaction_pool: Vec<Vec<u8>>,
     chain: Vec<Block>,
     blockchain_address: String,
@@ -51,12 +53,9 @@ impl Index<usize> for BlockChain {
 }
 
 impl BlockChain {
-    const DIFFICULTY: usize = 3;
-    const MINING_SENDER: &'static str = "THE BLOCKCHAIN";
-    const MINING_REWARD: u64 = 1;
-
-    pub fn new(address: String) -> Self {
+    pub fn new(config: Config, address: String) -> Self {
         let mut bc = BlockChain {
+            config,
             transaction_pool: Vec::<Vec<u8>>::new(),
             chain: Vec::<Block>::new(),
             blockchain_address: address,
@@ -76,7 +75,7 @@ impl BlockChain {
         }
         self.transaction_pool.clear();
         let now = Instant::now();
-        let proof_hash = BlockChain::do_proof_of_work(&mut b);
+        let proof_hash = BlockChain::do_proof_of_work(&mut b, self.config.difficulty);
         let elapsed = now.elapsed();
         println!(
             "compute time: {:?}\nproof for the current block is :{:?}",
@@ -176,12 +175,12 @@ impl BlockChain {
             return false;
         }
 
-        if tx.sender != BlockChain::MINING_SENDER && !Wallet::verify_transaction(tx) {
+        if tx.sender != self.config.sender    && !Wallet::verify_transaction(tx) {
             println!("invalid transaction");
             return false;
         }
 
-        if tx.sender != BlockChain::MINING_SENDER
+        if tx.sender != self.config.sender
             && self.calculate_total_amount(tx.sender.clone()) < tx.amount as i64
         {
             println!("sender dose not have enough balance");
@@ -204,11 +203,11 @@ impl BlockChain {
         true
     }
 
-    fn do_proof_of_work(block: &mut Block) -> String {
+    fn do_proof_of_work(block: &mut Block, difficulty: usize) -> String {
         loop {
             let hash = block.hash();
             let hash_str = hex::encode(&hash);
-            if hash_str[0..BlockChain::DIFFICULTY] == "0".repeat(BlockChain::DIFFICULTY) {
+            if hash_str[0..difficulty] == "0".repeat(difficulty) {
                 return hash_str;
             }
 
@@ -218,9 +217,9 @@ impl BlockChain {
 
     pub fn mining(&mut self) -> bool {
         let tx = WalletTransaction {
-            sender: BlockChain::MINING_SENDER.into(),
+            sender: self.config.sender.into(),
             recipient: self.blockchain_address.clone().into(),
-            amount: BlockChain::MINING_REWARD,
+            amount: self.config.reward,
             public_key: "".to_string(),
             signature: "".to_string(),
         };

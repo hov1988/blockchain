@@ -1,7 +1,10 @@
 pub mod wallet;
 use wallet::Wallet;
 pub mod blockchain;
+mod config;
+
 use blockchain::BlockChain;
+use crate::config::Config;
 
 fn main() {
     let wallet = Wallet::new();
@@ -12,13 +15,14 @@ fn main() {
     let transaction = wallet.sign_transaction(&"0x1234567890".to_string(), 100);
     println!("transaction : {:?}", transaction);
     println!("verify: {}", Wallet::verify_transaction(&transaction));
+    let config = Config::default();
 
     let wallet_miner = Wallet::new();
     let wallet_a = Wallet::new();
     let wallet_b = Wallet::new();
 
     let tx_a_b = wallet_a.sign_transaction(&wallet_b.get_address(), 100);
-    let mut blockchain = BlockChain::new(wallet_miner.get_address());
+    let mut blockchain = BlockChain::new(config, wallet_miner.get_address());
     let is_add = blockchain.add_transaction(&tx_a_b);
     println!("Added: {:?}", is_add);
     blockchain.mining();

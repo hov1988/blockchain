@@ -1,7 +1,6 @@
 use sha2::{Digest, Sha256};
 use std::ops::AddAssign;
 use std::time::SystemTime;
-use crate::blockchain::transaction::Transaction;
 
 #[derive(Debug)]
 pub struct Block {
