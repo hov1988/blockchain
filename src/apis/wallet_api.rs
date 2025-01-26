@@ -13,9 +13,9 @@ use crate::apis::models::Wallet;
 async fn get_wallet() -> impl Responder {
     // Mock wallet response
     let wallet = Wallet {
-        address: "sample_address".to_string(),
-        public_key: "sample_public_key".to_string(),
-        private_key: "sample_private_key".to_string(),
+        address: Some("sample_address".to_string()),
+        public_key: Some("sample_public_key".to_string()),
+        private_key: Some("sample_private_key".to_string()),
     };
 
     HttpResponse::Ok().json(wallet)

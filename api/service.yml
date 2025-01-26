@@ -7,17 +7,34 @@ servers:
 paths:
   /wallet:
     get:
+      tags:
+        - Wallet
       summary: Get Wallet Information
       operationId: getWallet
       responses:
         "200":
-          description: Wallet information retrieved successfully
+          description: Wallet retrieved successfully
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Wallet"
+    post:
+      tags:
+        - Wallet
+      summary: Create a new wallet
+      operationId: createWallet
+      responses:
+        "201":
+          description: Wallet created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Wallet"
+
   /blockchain:
     post:
+      tags:
+        - Blockchain
       summary: Add a transaction to the blockchain
       operationId: addTransaction
       requestBody:
@@ -29,6 +46,7 @@ paths:
       responses:
         "200":
           description: Transaction added successfully
+
 components:
   schemas:
     Wallet:
