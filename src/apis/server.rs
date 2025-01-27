@@ -8,9 +8,13 @@ use crate::apis;
 #[derive(OpenApi)]
 #[openapi(
     paths(
-        apis::wallet_api::get_wallet
+        apis::wallet_api::get_wallet_data,
+        apis::wallet_api::get_transaction_handler
     ),
-    components(schemas(apis::models::Wallet, apis::models::Transaction)),
+    components(schemas(
+        apis::models::Wallet,
+        apis::models::Transaction
+    )),
     info(
         title = "Blockchain API",
         version = "1.0.0"

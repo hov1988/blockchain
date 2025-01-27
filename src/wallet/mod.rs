@@ -56,6 +56,24 @@ impl Wallet {
         }
     }
 
+    pub fn new_from(public_key_str: &String, private_key_str: &String, address: &String) -> Self {
+        let mut public_key_bin = hex::decode(public_key_str).unwrap();
+        public_key_bin.insert(0, 0x04);
+        let verifying_key = VerifyingKey::from_sec1_bytes(&public_key_bin).unwrap();
+
+        let private_key_bytes = hex::decode(private_key_str).unwrap();
+        let private_key_bytes: [u8; 32] = private_key_bytes
+            .try_into()
+            .expect("Invalid private key hex data");
+        let signing_key = SigningKey::from_bytes((&private_key_bytes).into()).unwrap();
+
+        Wallet {
+            verifying_key,
+            signing_key,
+            address: address.clone(),
+        }
+    }
+
     pub fn private_key_str(&self) -> String {
         //convert the private key into hex string
         hex::encode(self.signing_key.to_bytes())

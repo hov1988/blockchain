@@ -392,6 +392,7 @@ dependencies = [
  "dotenv",
  "env_logger",
  "hex",
+ "log",
  "p256",
  "rand_core",
  "ripemd160",

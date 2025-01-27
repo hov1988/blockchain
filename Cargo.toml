@@ -19,3 +19,4 @@ tokio = { version = "1", features = ["full"] } # Async runtime for Actix
 utoipa = { version = "5.3.1", features = ["actix_extras"] }
 utoipa-swagger-ui = { version = "9.0.0", features = ["actix-web"] }
 env_logger = "0.11.6"
+log = "0.4.25"
