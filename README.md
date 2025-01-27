@@ -13,6 +13,22 @@ The project uses the [OpenAPI Generator](https://openapi-generator.tech) to gene
   - [Utoipa](https://github.com/juhaku/utoipa) for OpenAPI documentation
   - [Serde](https://serde.rs/) for serialization/deserialization
 
+## Code Quality Tools
+
+This project uses the following tools to maintain code quality:
+
+1. **`rustfmt`**: Ensures code is formatted according to Rust's style guidelines.
+2. **`clippy`**: Provides linting for common mistakes, inefficiencies, and best practices.
+
+### Running Code Quality Checks
+
+You can use the provided `Makefile` to run the following commands:
+
+- **Format Code**
+  ```bash
+  make fmt
+
+
 ## Features
 
 - **Wallet Management:**

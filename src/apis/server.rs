@@ -1,26 +1,17 @@
+use crate::apis;
+use crate::apis::dto;
+use crate::apis::handler;
 use actix_files as fs;
 use actix_web::{App, HttpServer};
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
-use crate::apis::dto;
-use crate::apis::handler;
-use crate::apis;
 
 /// Define the OpenAPI documentation
 #[derive(OpenApi)]
 #[openapi(
-    paths(
-        apis::handler::get_wallet_data,
-        apis::handler::get_transaction_handler
-    ),
-    components(schemas(
-        apis::dto::WalletDto,
-        apis::dto::TransactionDto
-    )),
-    info(
-        title = "Blockchain API",
-        version = "1.0.0"
-    )
+    paths(apis::handler::get_wallet_data, apis::handler::get_transaction_handler),
+    components(schemas(apis::dto::WalletDto, apis::dto::TransactionDto)),
+    info(title = "Blockchain API", version = "1.0.0")
 )]
 pub struct ApiDoc;
 
@@ -34,18 +25,18 @@ impl Server {
                 // Serve the pre-defined YAML file at /api-docs/yaml
                 .service(
                     fs::Files::new("/api-docs/yaml", "./api") // Adjust path to your `service.yml`
-                        .index_file("service.yml")
+                        .index_file("service.yml"),
                 )
                 // Serve `utoipa`-generated Swagger UI at /swagger-ui
                 .service(
                     SwaggerUi::new("/swagger-ui/{_:.*}")
-                        .url("/api-doc/openapi.json", ApiDoc::openapi())
+                        .url("/api-doc/openapi.json", ApiDoc::openapi()),
                 )
                 // Configure your APIs
                 .configure(apis::handler::configure)
         })
-            .bind(("127.0.0.1", 8080))?
-            .run()
-            .await
+        .bind(("127.0.0.1", 8080))?
+        .run()
+        .await
     }
 }

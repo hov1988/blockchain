@@ -1,9 +1,9 @@
+use crate::config::Config;
 use sha2::Digest;
 use transaction::*;
-use crate::config::Config;
 pub mod transaction;
 
-use crate::wallet::{WalletTransaction as WalletTransaction, Wallet};
+use crate::wallet::{Wallet, WalletTransaction};
 use std::cmp::PartialEq;
 use std::ops::AddAssign;
 use std::ops::Index;
@@ -48,7 +48,9 @@ pub struct BlockChain {
 impl Index<usize> for BlockChain {
     type Output = Block;
     fn index(&self, index: usize) -> &Self::Output {
-        self.chain.get(index).expect("index out of range for the chain")
+        self.chain
+            .get(index)
+            .expect("index out of range for the chain")
     }
 }
 
@@ -175,7 +177,7 @@ impl BlockChain {
             return false;
         }
 
-        if tx.sender != self.config.sender    && !Wallet::verify_transaction(tx) {
+        if tx.sender != self.config.sender && !Wallet::verify_transaction(tx) {
             println!("invalid transaction");
             return false;
         }

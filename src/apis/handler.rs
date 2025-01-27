@@ -1,13 +1,13 @@
-use actix_web::{get, post, HttpResponse, Responder};
-use utoipa::path;
-use crate::wallet::Wallet as BlockchainWallet;
+use crate::apis::dto::TransactionDto as APITransaction;
 use crate::apis::dto::WalletDto;
 use crate::blockchain::BlockChain;
-use log::{info, debug};
-use crate::apis::dto::TransactionDto as APITransaction;
+use crate::wallet::Wallet as BlockchainWallet;
 use actix_web::web;
+use actix_web::{get, post, HttpResponse, Responder};
+use log::{debug, info};
 use std::sync::Arc;
 use std::sync::Mutex;
+use utoipa::path;
 
 /// Wallet response schema
 #[utoipa::path(
@@ -23,9 +23,11 @@ async fn get_wallet_data() -> impl Responder {
     let blockchain_wallet = BlockchainWallet::new();
 
     // Map the blockchain wallet to the API wallet structure
-    let api_wallet = WalletDto::new_from(&blockchain_wallet.get_address(),
-                                         &blockchain_wallet.public_key_str(),
-                                         &blockchain_wallet.private_key_str());
+    let api_wallet = WalletDto::new_from(
+        &blockchain_wallet.get_address(),
+        &blockchain_wallet.public_key_str(),
+        &blockchain_wallet.private_key_str(),
+    );
 
     HttpResponse::Ok().json(api_wallet)
 }

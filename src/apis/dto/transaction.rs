@@ -16,14 +16,12 @@ pub struct TransactionDto {
     pub private_key: Option<String>,
 }
 
-
 /// Transactions in blockchain response model
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, ToSchema)]
 pub struct TransactionsInBlockChainResponse {
     pub transaction_count: usize,
     pub transactions: Vec<Transaction>,
 }
-
 
 /// Transaction API model
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, ToSchema)]
@@ -46,5 +44,3 @@ pub struct TransactionRequest {
     pub recipient: String,
     pub amount: f64,
 }
-
-

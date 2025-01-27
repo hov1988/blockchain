@@ -1,5 +1,5 @@
-pub mod wallet;
 pub mod transaction;
+pub mod wallet;
 
-pub use wallet::WalletDto;
 pub use transaction::TransactionDto;
+pub use wallet::WalletDto;
