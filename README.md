@@ -9,20 +9,20 @@ The project uses the [OpenAPI Generator](https://openapi-generator.tech) to gene
 - **API version:** 1.0.0
 - **Package version:** 1.0.0
 - **Build tools:**
-    - [Actix Web](https://actix.rs/) for the web framework
-    - [Utoipa](https://github.com/juhaku/utoipa) for OpenAPI documentation
-    - [Serde](https://serde.rs/) for serialization/deserialization
+  - [Actix Web](https://actix.rs/) for the web framework
+  - [Utoipa](https://github.com/juhaku/utoipa) for OpenAPI documentation
+  - [Serde](https://serde.rs/) for serialization/deserialization
 
 ## Features
 
 - **Wallet Management:**
-    - Create new wallets
-    - Retrieve wallet information (address, public key, private key)
-    - Sign transactions
+  - Create new wallets
+  - Retrieve wallet information (address, public key, private key)
+  - Sign transactions
 - **Blockchain Operations:**
-    - Add transactions to the blockchain
-    - Retrieve all transactions
-    - Query balances for specific addresses
+  - Add transactions to the blockchain
+  - Retrieve all transactions
+  - Query balances for specific addresses
 - **API Documentation:** OpenAPI 3.0-compliant documentation with Swagger UI.
 
 ## Installation
