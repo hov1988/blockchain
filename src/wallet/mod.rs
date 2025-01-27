@@ -39,8 +39,6 @@ impl Wallet {
                 hasher.update(&hash);
                 let mut hash_result = hasher.finalize().to_vec();
                 hash_result.insert(0, 0x00);
-                let hash2 = Sha256::digest(&hash_result);
-                let hash3 = Sha256::digest(&hash2);
                 let checksum = &hash[0..4];
                 let full_hash = [hash_result, checksum.to_vec()].concat();
                 address = bs58::encode(full_hash).into_string();

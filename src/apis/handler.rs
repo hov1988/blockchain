@@ -66,8 +66,6 @@ pub async fn get_transaction_handler(
     let amount: u64 = amount as u64; // Convert f64 to u64
     let wallet_tx = wallet.sign_transaction(&tx.recipient.clone().unwrap_or_default(), amount);
 
-    let wallet_tx = wallet.sign_transaction(&tx.recipient.clone().unwrap_or_default(), amount);
-
     // Access the blockchain from the shared state
     let mut blockchain = data.lock().unwrap();
     let add_result = blockchain.add_transaction(&wallet_tx);

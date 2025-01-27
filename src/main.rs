@@ -1,5 +1,4 @@
 mod apis;
-use apis::dto;
 use apis::server::Server;
 pub mod blockchain;
 pub mod config;
