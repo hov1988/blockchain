@@ -33,3 +33,4 @@ clean:
 # Target to run the project
 run:
 	@$(CARGO) run
+

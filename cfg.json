@@ -1,0 +1,13 @@
+{
+  "generatorName": "rust",
+  "inputSpec": "./api/service.yml",
+  "output": "./src/apis",
+  "globalProperties": {
+    "models": true
+  },
+  "additionalProperties": {
+    "packageName": "apis",
+    "modelPackage": "apis.models",
+    "sourceFolder": ""
+  }
+}
