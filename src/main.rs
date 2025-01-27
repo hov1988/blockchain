@@ -1,6 +1,6 @@
 mod apis;
 use apis::server::Server;
-use apis::models;
+use apis::dto;
 pub mod wallet;
 pub mod blockchain;
 pub mod config;

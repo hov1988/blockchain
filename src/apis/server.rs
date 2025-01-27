@@ -2,18 +2,20 @@ use actix_files as fs;
 use actix_web::{App, HttpServer};
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
+use crate::apis::dto;
+use crate::apis::handler;
 use crate::apis;
 
 /// Define the OpenAPI documentation
 #[derive(OpenApi)]
 #[openapi(
     paths(
-        apis::wallet_api::get_wallet_data,
-        apis::wallet_api::get_transaction_handler
+        apis::handler::get_wallet_data,
+        apis::handler::get_transaction_handler
     ),
     components(schemas(
-        apis::models::Wallet,
-        apis::models::Transaction
+        apis::dto::WalletDto,
+        apis::dto::TransactionDto
     )),
     info(
         title = "Blockchain API",
@@ -40,7 +42,7 @@ impl Server {
                         .url("/api-doc/openapi.json", ApiDoc::openapi())
                 )
                 // Configure your APIs
-                .configure(apis::wallet_api::configure)
+                .configure(apis::handler::configure)
         })
             .bind(("127.0.0.1", 8080))?
             .run()

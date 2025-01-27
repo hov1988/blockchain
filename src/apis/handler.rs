@@ -1,31 +1,20 @@
 use actix_web::{get, post, HttpResponse, Responder};
 use utoipa::path;
 use crate::wallet::Wallet as BlockchainWallet;
-use crate::apis::models::Wallet as APIWallet;
+use crate::apis::dto::WalletDto;
 use crate::blockchain::BlockChain;
 use log::{info, debug};
-use crate::apis::models::Transaction as APITransaction;
+use crate::apis::dto::TransactionDto as APITransaction;
 use actix_web::web;
 use std::sync::Arc;
 use std::sync::Mutex;
-
-
-
-/// Map a `BlockchainWallet` to an `APIWallet`.
-fn map_blockchain_wallet_to_api_wallet(blockchain_wallet: &BlockchainWallet) -> APIWallet {
-    APIWallet {
-        address: Some(blockchain_wallet.get_address()),
-        public_key: Some(blockchain_wallet.public_key_str()),
-        private_key: Some(blockchain_wallet.private_key_str()),
-    }
-}
 
 /// Wallet response schema
 #[utoipa::path(
     get,
     path = "/wallet",
     responses(
-        (status = 200, description = "Wallet information retrieved successfully", body = APIWallet)
+        (status = 200, description = "Wallet information retrieved successfully", body = WalletDto)
     )
 )]
 #[get("/wallet")]
@@ -34,7 +23,9 @@ async fn get_wallet_data() -> impl Responder {
     let blockchain_wallet = BlockchainWallet::new();
 
     // Map the blockchain wallet to the API wallet structure
-    let api_wallet = map_blockchain_wallet_to_api_wallet(&blockchain_wallet);
+    let api_wallet = WalletDto::new_from(&blockchain_wallet.get_address(),
+                                         &blockchain_wallet.public_key_str(),
+                                         &blockchain_wallet.private_key_str());
 
     HttpResponse::Ok().json(api_wallet)
 }

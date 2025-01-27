@@ -1,6 +1,0 @@
-{
-  "packageName": "blockchain",
-  "packageVersion": "0.1.0",
-  "modelPackage": "models",
-  "apiPackage": "apis"
-}
