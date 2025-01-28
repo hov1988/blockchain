@@ -3,7 +3,7 @@ use sha2::Digest;
 use transaction::*;
 pub mod transaction;
 
-use crate::wallet::{Wallet, WalletTransaction};
+use crate::core::wallet::{Wallet, WalletTransaction};
 use std::cmp::PartialEq;
 use std::ops::AddAssign;
 use std::ops::Index;

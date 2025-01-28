@@ -1,8 +1,7 @@
 mod apis;
 use apis::server::Server;
-pub mod blockchain;
 pub mod config;
-pub mod wallet;
+pub mod core;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

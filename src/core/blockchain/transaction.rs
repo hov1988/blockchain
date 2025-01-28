@@ -1,4 +1,4 @@
-use crate::blockchain::*;
+use crate::core::blockchain::*;
 use std::fmt;
 
 #[derive(Debug)]
