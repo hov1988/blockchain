@@ -1,16 +1,13 @@
-use crate::apis::dto::query_amount as QueryAmount;
 use crate::apis::dto::query_amount_response::QueryAmountResponse;
-use crate::apis::dto::transactions_in_block_chain_response::TransactionsInBlockChainResponse;
 use crate::apis::dto::Transaction as APITransaction;
 use crate::apis::dto::Wallet;
 use crate::core::blockchain::BlockChain;
 use crate::core::wallet::Wallet as BlockchainWallet;
 use actix_web::web;
 use actix_web::{get, post, HttpResponse, Responder};
-use log::{debug, info};
+use log::info;
 use std::sync::Arc;
 use std::sync::Mutex;
-use utoipa::path;
 
 /// Wallet response schema
 #[utoipa::path(
@@ -134,9 +131,9 @@ pub async fn mining(data: web::Data<Arc<Mutex<BlockChain>>>) -> impl Responder {
     )
 )]
 #[get("/show_transactions")]
-pub async fn show_transaction(data: web::Data<Arc<Mutex<BlockChain>>>) -> HttpResponse {
+pub async fn show_transaction(_data: web::Data<Arc<Mutex<BlockChain>>>) -> HttpResponse {
     // Simulating a response, you can implement the actual logic here
-    let blockchain = data.lock().unwrap();
+    // let blockchain = data.lock().unwrap();
     // let transactions = blockchain.search_block();  // Assuming this method exists in BlockChain
     // let transaction_count = transactions.len();
     //

@@ -1,17 +1,13 @@
 use crate::config::Config;
-use sha2::Digest;
 use transaction::*;
 pub mod transaction;
 
 use crate::core::wallet::{Wallet, WalletTransaction};
-use std::cmp::PartialEq;
-use std::ops::AddAssign;
 use std::ops::Index;
 use std::time::Instant;
 pub mod block;
 
 use block::Block;
-use transaction::*;
 pub trait Serialization<T> {
     fn serialization(&self) -> Vec<u8>;
     fn deserialization(bytes: Vec<u8>) -> T;

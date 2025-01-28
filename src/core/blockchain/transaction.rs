@@ -35,20 +35,27 @@ impl Serialization<Transaction> for Transaction {
 
     fn deserialization(bytes: Vec<u8>) -> Transaction {
         let mut pos = 0;
+
+        // Deserialize sender address length
         let len_sender = usize::from_be_bytes(bytes[pos..pos + 8].try_into().unwrap());
         pos += 8;
         let mut sender_address = Vec::<u8>::new();
         sender_address.extend_from_slice(&bytes[pos..pos + len_sender]);
         pos += len_sender;
+
+        // Deserialize recipient address length
         let len_recipient = usize::from_be_bytes(bytes[pos..pos + 8].try_into().unwrap());
         pos += 8;
         let mut recipient_address = Vec::<u8>::new();
         recipient_address.extend_from_slice(&bytes[pos..pos + len_recipient]);
         pos += len_recipient;
+
+        // Deserialize value length and value itself
         let len_value = usize::from_be_bytes(bytes[pos..pos + 8].try_into().unwrap());
         pos += 8;
         let value: u64 = u64::from_be_bytes(bytes[pos..pos + len_value].try_into().unwrap());
-        pos += len_value;
+
+        // Return the deserialized Transaction
         Transaction {
             sender_address,
             recipient_address,

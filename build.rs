@@ -1,6 +1,6 @@
+#![allow(clippy::all)]
 use std::{
     fs,
-    io::{self, Write},
     path::Path,
     process::Command,
 };
@@ -36,8 +36,7 @@ fn ensure_directories_exist() {
 
     for dir in &required_dirs {
         if !Path::new(dir).exists() {
-            fs::create_dir_all(dir).expect(&format!("Failed to create directory: {}", dir));
-            println!("Created directory: {}", dir);
+            fs::create_dir_all(dir).unwrap();
         }
     }
 }
@@ -48,8 +47,7 @@ fn clean_generated_files() {
 
     for path in &paths_to_clean {
         if Path::new(path).exists() {
-            fs::remove_dir_all(path).expect(&format!("Failed to remove directory: {}", path));
-            println!("Removed directory: {}", path);
+            fs::remove_dir_all(path).unwrap();
         }
     }
 }

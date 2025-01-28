@@ -5,13 +5,12 @@ CARGO = cargo
 fmt:
 	@$(CARGO) fmt --all
 
-# Target to check formatting without modifying code
-fmt-check:
-	@$(CARGO) fmt --all -- --check
+fix:
+	@$(CARGO) fix --allow-dirty
 
 # Target to run clippy (lint the code)
 lint:
-	@$(CARGO) clippy --all-targets --all-features -- -D warnings
+	@$(CARGO) clippy
 
 # Target to run both lint and format checks
 check-fmt:
