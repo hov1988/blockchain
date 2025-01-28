@@ -14,8 +14,12 @@ use utoipa_swagger_ui::SwaggerUi;
         apis::handler::show_transaction,
         apis::handler::mining
     ),
-    components(schemas(apis::dto::Wallet, apis::dto::Transaction, crate::apis::dto::query_amount::QueryAmount,
-        crate::apis::dto::transactions_in_block_chain_response::TransactionsInBlockChainResponse)),
+    components(schemas(
+        apis::dto::Wallet,
+        apis::dto::Transaction,
+        crate::apis::dto::query_amount::QueryAmount,
+        crate::apis::dto::transactions_in_block_chain_response::TransactionsInBlockChainResponse
+    )),
     info(title = "Blockchain API", version = "1.0.0")
 )]
 pub struct ApiDoc;

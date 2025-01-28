@@ -1,7 +1,7 @@
-use crate::apis::dto::Transaction as APITransaction;
+use crate::apis::dto::query_amount as QueryAmount;
 use crate::apis::dto::query_amount_response::QueryAmountResponse;
 use crate::apis::dto::transactions_in_block_chain_response::TransactionsInBlockChainResponse;
-use crate::apis::dto::query_amount as QueryAmount;
+use crate::apis::dto::Transaction as APITransaction;
 use crate::apis::dto::Wallet;
 use crate::core::blockchain::BlockChain;
 use crate::core::wallet::Wallet as BlockchainWallet;

@@ -1,4 +1,9 @@
-use std::{fs, path::Path, process::Command, io::{self, Write}};
+use std::{
+    fs,
+    io::{self, Write},
+    path::Path,
+    process::Command,
+};
 
 fn main() {
     println!("cargo:rerun-if-changed=api/service.yml");
@@ -27,11 +32,7 @@ fn main() {
 
 /// Ensures the necessary directories exist
 fn ensure_directories_exist() {
-    let required_dirs = vec![
-        "generated/models",
-        "generated/apis",
-        "generated/docs",
-    ];
+    let required_dirs = vec!["generated/models", "generated/apis", "generated/docs"];
 
     for dir in &required_dirs {
         if !Path::new(dir).exists() {
@@ -43,11 +44,7 @@ fn ensure_directories_exist() {
 
 /// Removes previously generated files to avoid conflicts
 fn clean_generated_files() {
-    let paths_to_clean = vec![
-        "generated/models",
-        "generated/apis",
-        "generated/docs",
-    ];
+    let paths_to_clean = vec!["generated/models", "generated/apis", "generated/docs"];
 
     for path in &paths_to_clean {
         if Path::new(path).exists() {

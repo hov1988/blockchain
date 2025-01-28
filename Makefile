@@ -14,10 +14,11 @@ lint:
 	@$(CARGO) clippy --all-targets --all-features -- -D warnings
 
 # Target to run both lint and format checks
-check:
-	@$(MAKE) fmt-check
-	@$(MAKE) lint
+check-fmt:
+	@$(MAKE) fmt
 
+check-lint:
+	@$(MAKE) lint
 # Target to build the project
 build:
 	@$(CARGO) build
