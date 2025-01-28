@@ -2,127 +2,135 @@ openapi: 3.0.0
 info:
   title: Blockchain API
   version: 1.0.0
-servers:
-  - url: http://localhost:8080
 paths:
   /wallet:
     get:
-      tags:
-        - Wallet
-      summary: Get Wallet Information
-      operationId: getWalletData
+      summary: Get wallet information
+      description: Retrieves wallet information such as address, public key, and private key.
       responses:
-        "200":
+        '200':
           description: Wallet information retrieved successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/WalletResponse"
+                $ref: '#/components/schemas/Wallet'
     post:
-      tags:
-        - Wallet
       summary: Create a new wallet
-      operationId: createWallet
+      description: Creates a new wallet and returns its information.
       responses:
-        "201":
+        '201':
           description: Wallet created successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/WalletResponse"
-  /blockchain/transaction:
+                $ref: '#/components/schemas/Wallet'
+
+  /transaction:
     post:
-      tags:
-        - Blockchain
-      summary: Add a transaction to the blockchain
-      operationId: addTransaction
+      summary: Handle transactions by adding them to the blockchain
+      description: Processes a transaction by signing and adding it to the blockchain.
       requestBody:
-        required: true
+        description: The transaction details.
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/TransactionRequest"
+              $ref: '#/components/schemas/Transaction'
       responses:
-        "200":
+        '200':
           description: Transaction added successfully
-  /blockchain/transactions:
+        '500':
+          description: Failed to add transaction to blockchain
+
+  /amount/{address}:
     get:
-      tags:
-        - Blockchain
-      summary: Show all transactions in the blockchain
-      operationId: showTransactions
-      responses:
-        "200":
-          description: Transactions retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/TransactionsInBlockChainResponse"
-  /blockchain/amount/{address}:
-    get:
-      tags:
-        - Blockchain
-      summary: Get total amount for an address
-      operationId: getAmount
+      summary: Get the balance amount for a given blockchain address
+      description: Retrieves the balance for the specified blockchain address.
       parameters:
-        - name: address
-          in: path
+        - in: path
+          name: address
           required: true
           schema:
             type: string
-          description: The blockchain address to query
+          description: The blockchain address for which the balance is requested.
       responses:
-        "200":
+        '200':
           description: Amount retrieved successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/QueryAmountResponse"
+                $ref: '#/components/schemas/QueryAmount'
+
+  /mining:
+    get:
+      summary: Start mining in the blockchain
+      description: Triggers the mining process in the blockchain.
+      responses:
+        '200':
+          description: Mining started successfully
+        '500':
+          description: Mining failed
+
+  /show_transactions:
+    get:
+      summary: Show all transactions in the blockchain
+      description: Retrieves a list of all transactions in the blockchain.
+      responses:
+        '200':
+          description: Transactions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionsInBlockChain'
+
 components:
   schemas:
-    WalletResponse:
+    Wallet:
       type: object
       properties:
         address:
           type: string
+          description: The blockchain wallet address
         public_key:
           type: string
+          description: The public key associated with the wallet
         private_key:
           type: string
-    TransactionRequest:
-      type: object
-      properties:
-        recipient:
-          type: string
-        amount:
-          type: number
-          format: float
+          description: The private key associated with the wallet
+
     Transaction:
       type: object
       properties:
-        sender:
+        private_key:
           type: string
-        recipient:
+          description: The private key of the wallet initiating the transaction
+        public_key:
           type: string
+          description: The public key of the wallet initiating the transaction
+        blockchain_address:
+          type: string
+          description: The blockchain address of the sender
+        recipient_address:
+          type: string
+          description: The recipient's blockchain address
         amount:
-          type: number
-          format: float
-        publicKey:
           type: string
-        signature:
-          type: string
-    QueryAmountResponse:
+          description: The amount to be transferred in the transaction
+
+    QueryAmount:
       type: object
       properties:
         amount:
           type: number
           format: float
-    TransactionsInBlockChainResponse:
+          description: The amount of currency in the wallet for the provided address
+
+    TransactionsInBlockChain:
       type: object
       properties:
         transaction_count:
           type: integer
+          description: The total number of transactions in the blockchain
         transactions:
           type: array
           items:
-            $ref: "#/components/schemas/Transaction"
+            $ref: '#/components/schemas/Transaction'
